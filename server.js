@@ -259,16 +259,10 @@ app.post('/api/admin/topup', requireAdmin, async (req, res) => {
 
 // ==================== GENERATE (Claude API) ====================
 
-function sendSSEError(res, statusCode, errorMessage) {
+function sendGenerateError(res, statusCode, errorMessage) {
   if (!res.headersSent) {
-    res.writeHead(statusCode, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    });
+    res.status(statusCode).json({ error: errorMessage });
   }
-  res.write('data: ' + JSON.stringify({ type: 'error', error: errorMessage }) + '\n\n');
-  res.end();
 }
 
 function sanitizeMessages(messages) {
@@ -304,15 +298,15 @@ async function generateHandler(req, res) {
     const { userId, messages, model } = req.body;
 
     if (!userId || !messages || !model) {
-      return sendSSEError(res, 400, 'Missing required fields');
+      return sendGenerateError(res, 400, 'Missing required fields');
     }
 
     if (!MODEL_PRICING[model]) {
-      return sendSSEError(res, 400, 'Invalid model');
+      return sendGenerateError(res, 400, 'Invalid model');
     }
 
     if (!Array.isArray(messages) || messages.length === 0) {
-      return sendSSEError(res, 400, 'Messages must be a non-empty array');
+      return sendGenerateError(res, 400, 'Messages must be a non-empty array');
     }
 
     const { data: user } = await supabase
@@ -321,10 +315,10 @@ async function generateHandler(req, res) {
       .eq('id', userId)
       .single();
 
-    if (!user) return sendSSEError(res, 404, 'User not found');
+    if (!user) return sendGenerateError(res, 404, 'User not found');
 
     if (parseFloat(user.credits) < 0.01 && !user.is_admin) {
-      return sendSSEError(res, 402, 'Insufficient credits');
+      return sendGenerateError(res, 402, 'Insufficient credits');
     }
 
     const settings = await getSettings();
@@ -386,16 +380,8 @@ Rules:
       prompt_preview: promptPreview,
     });
 
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    });
-
-    const text = content[0].text;
-    res.write('data: ' + JSON.stringify({ type: 'chunk', text: text }) + '\n\n');
-    res.write('data: ' + JSON.stringify({
-      type: 'done',
+    res.json({
+      content: content,
       usage: {
         input_tokens: inputTokens,
         output_tokens: outputTokens,
@@ -403,12 +389,11 @@ Rules:
         charged_eur: chargedEUR,
         remaining_credits: newCredits,
       },
-    }) + '\n\n');
-    res.end();
+    });
   } catch (err) {
     console.error('Generate error:', err);
     const message = err?.error?.message || err?.message || 'Generation failed';
-    sendSSEError(res, 500, message);
+    sendGenerateError(res, 500, message);
   }
 }
 
