@@ -45,6 +45,11 @@ const MODEL_PRICING = {
   'claude-opus-4-20250514': { label: 'Opus 4', input: 15.0, output: 75.0 },
 };
 
+// Map deprecated model IDs to current ones
+const MODEL_ALIASES = {
+  'claude-haiku-3-5-20241022': 'claude-haiku-4-5-20251001',
+};
+
 // ==================== HELPERS ====================
 
 function hashPassword(password) {
@@ -295,14 +300,21 @@ function sanitizeMessages(messages) {
 
 async function generateHandler(req, res) {
   try {
-    const { userId, messages, model } = req.body;
+    const { userId, messages } = req.body;
+    let model = req.body.model;
 
     if (!userId || !messages || !model) {
       return sendGenerateError(res, 400, 'Missing required fields');
     }
 
+    // Resolve deprecated model aliases
+    if (MODEL_ALIASES[model]) {
+      model = MODEL_ALIASES[model];
+    }
+
     if (!MODEL_PRICING[model]) {
-      return sendGenerateError(res, 400, 'Invalid model');
+      console.error('Invalid model requested:', model);
+      return sendGenerateError(res, 400, 'Invalid model: ' + model);
     }
 
     if (!Array.isArray(messages) || messages.length === 0) {

@@ -228,7 +228,7 @@ describe('Generate Route', () => {
       .post('/api/generate')
       .send({ userId: 'test', messages: [{ role: 'user', content: 'hi' }], model: 'bad-model' });
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe('Invalid model');
+    expect(res.body.error).toContain('Invalid model');
   });
 
   test('POST /api/generate — empty messages', async () => {
