@@ -234,7 +234,7 @@ describe('Generate Route', () => {
   test('POST /api/generate — empty messages', async () => {
     const res = await request(app)
       .post('/api/generate')
-      .send({ userId: 'test', messages: [], model: 'claude-haiku-3-5-20241022' });
+      .send({ userId: 'test', messages: [], model: 'claude-haiku-4-5-20251001' });
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('non-empty array');
   });
@@ -242,7 +242,7 @@ describe('Generate Route', () => {
   test('POST /api/generate — user not found', async () => {
     const res = await request(app)
       .post('/api/generate')
-      .send({ userId: 'no-user', messages: [{ role: 'user', content: 'hi' }], model: 'claude-haiku-3-5-20241022' });
+      .send({ userId: 'no-user', messages: [{ role: 'user', content: 'hi' }], model: 'claude-haiku-4-5-20251001' });
     expect(res.status).toBe(404);
     expect(res.body.error).toBe('User not found');
   });
@@ -258,7 +258,7 @@ describe('Generate Route', () => {
       .post('/api/generate')
       .send({
         userId,
-        model: 'claude-haiku-3-5-20241022',
+        model: 'claude-haiku-4-5-20251001',
         messages: [{ role: 'user', content: 'build a counter' }],
       });
     // User has 0 credits and is not admin, so should get 402
@@ -284,7 +284,7 @@ describe('Generate Route', () => {
       .post('/api/generate')
       .send({
         userId,
-        model: 'claude-haiku-3-5-20241022',
+        model: 'claude-haiku-4-5-20251001',
         messages: [{ role: 'user', content: 'build a counter' }],
       });
     expect(res.status).toBe(402);
@@ -299,7 +299,7 @@ describe('Generate Route', () => {
       .post('/api/generate')
       .send({
         userId: 'no-user',
-        model: 'claude-haiku-3-5-20241022',
+        model: 'claude-haiku-4-5-20251001',
         messages: [{
           role: 'user',
           content: 'Here is my current web page code:\n\n<!DOCTYPE html><html><body>Hello</body></html>\n\nUser request: add a button',
@@ -325,7 +325,7 @@ describe('Chat Routes', () => {
       .send({
         userId: 'test-user',
         title: 'My Chat',
-        model: 'claude-haiku-3-5-20241022',
+        model: 'claude-haiku-4-5-20251001',
         messages: [{ role: 'user', content: 'hello' }],
         generatedCode: '<html></html>',
         totalCost: 0.01,

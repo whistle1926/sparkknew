@@ -41,7 +41,7 @@ const supabase = createClient(
 
 const MODEL_PRICING = {
   'claude-sonnet-4-5-20250929': { label: 'Sonnet 4.5', input: 3.0, output: 15.0 },
-  'claude-haiku-3-5-20241022': { label: 'Haiku 3.5', input: 0.80, output: 4.0 },
+  'claude-haiku-4-5-20251001': { label: 'Haiku 4.5', input: 1.0, output: 5.0 },
   'claude-opus-4-20250514': { label: 'Opus 4', input: 15.0, output: 75.0 },
 };
 

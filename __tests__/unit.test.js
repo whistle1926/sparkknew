@@ -19,7 +19,7 @@ describe('calculateCost', () => {
   const settings = { profit_margin: 30, eur_rate: 0.92 };
 
   test('calculates cost for valid model', () => {
-    const result = calculateCost(1000, 500, 'claude-haiku-3-5-20241022', settings);
+    const result = calculateCost(1000, 500, 'claude-haiku-4-5-20251001', settings);
     expect(result.baseCostUSD).toBeGreaterThan(0);
     expect(result.baseCostEUR).toBeGreaterThan(0);
     expect(result.chargedEUR).toBeGreaterThan(result.baseCostEUR);
@@ -33,9 +33,9 @@ describe('calculateCost', () => {
   });
 
   test('applies profit margin correctly', () => {
-    const result = calculateCost(1_000_000, 0, 'claude-haiku-3-5-20241022', settings);
-    // input: 1M tokens at $0.80/M = $0.80 USD
-    const expectedUSD = 0.80;
+    const result = calculateCost(1_000_000, 0, 'claude-haiku-4-5-20251001', settings);
+    // input: 1M tokens at $1.00/M = $1.00 USD
+    const expectedUSD = 1.00;
     const expectedEUR = expectedUSD * 0.92;
     const expectedCharged = expectedEUR * 1.30;
 
@@ -45,13 +45,13 @@ describe('calculateCost', () => {
   });
 
   test('handles zero tokens', () => {
-    const result = calculateCost(0, 0, 'claude-haiku-3-5-20241022', settings);
+    const result = calculateCost(0, 0, 'claude-haiku-4-5-20251001', settings);
     expect(result.baseCostUSD).toBe(0);
     expect(result.chargedEUR).toBe(0);
   });
 
   test('uses default settings when missing', () => {
-    const result = calculateCost(1_000_000, 0, 'claude-haiku-3-5-20241022', {});
+    const result = calculateCost(1_000_000, 0, 'claude-haiku-4-5-20251001', {});
     expect(result.baseCostEUR).toBeGreaterThan(0);
     expect(result.chargedEUR).toBeGreaterThan(0);
   });
